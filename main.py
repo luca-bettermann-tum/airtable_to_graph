@@ -9,7 +9,8 @@ app = Flask(__name__)
 
 # Airtable configuration
 AIRTABLE_API_KEY = os.environ['AIRTABLE_API_KEY']
-AIRTABLE_BASE_ID = '' # put your airtable base here
+AIRTABLE_BASE_ID = 'appMBRI6eoaftlSAi' # put your airtable base here
+MINIMAL = False
 
 # Retrieve data from Airtable
 def get_airtable_data(table_name):
@@ -61,6 +62,14 @@ def index():
     base_schema = response.json()
     print(base_schema)
     table_names = [table['name'] for table in base_schema['tables']]
+
+    if MINIMAL:
+        # Filter out tables that are not relevant
+        valid_table_ids = ['01', '02']
+    else:
+        valid_table_ids = ['01', '02', '03', '04']
+
+    table_names = [name for name in table_names if any(name.startswith(id) for id in valid_table_ids)]
 
     # Retrieve data from Airtable using parallel processing
     with ThreadPoolExecutor() as executor:
